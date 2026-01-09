@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head th:replace="~{layout :: head('Admin Dashboard')}"></head>
+
+<body class="bg-light">
+
+<div th:replace="~{layout :: navbar}"></div>
+
+<div class="container-fluid py-15 mt-5">
+    <div class="row">
+
+        <nav class="col-md-2 d-none d-md-block sidebar py-4 shadow-lg position-sticky top-0"
+             style="height: calc(100vh - 100px); top: 80px; background: #003366; border-right: 4px solid #FFCC00; border-radius: 0 15px 15px 0;">
+            <div class="position-sticky">
+                <h6 class="text-center fw-bold mb-4 text-uppercase ls-1" style="color: #FFCC00; letter-spacing: 2px;">Administration</h6>
+                <ul class="nav flex-column gap-3">
+                    <li class="nav-item">
+                        <a class="nav-link rounded text-white d-flex align-items-center p-3 hover-sidebar" href="#stats">
+                            <i class="fas fa-chart-line me-3" style="color: #FFCC00;"></i>Statistiques
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link rounded text-white d-flex align-items-center p-3 hover-sidebar" href="#clubs">
+                            <i class="fas fa-users-cog me-3" style="color: #FFCC00;"></i>Gestion Clubs
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link rounded text-white d-flex align-items-center p-3 hover-sidebar" href="#evenements">
+                            <i class="fas fa-check-circle me-3" style="color: #FFCC00;"></i>Validations
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link rounded text-white d-flex align-items-center p-3 hover-sidebar" href="#users">
+                            <i class="fas fa-user-graduate me-3" style="color: #FFCC00;"></i>Utilisateurs
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <style>
+            .hover-sidebar:hover { background: rgba(255, 204, 0, 0.1); color: #FFCC00 !important; }
+            .pagination .page-link { color: #003366; border-radius: 0; }
+            .pagination .page-item.active .page-link { background-color: #003366; border-color: #003366; }
+        </style>
+
+        <main class="col-md-10 ms-sm-auto px-md-4">
+
+            <section id="stats" class="mb-5 pt-3">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm bg-primary text-white h-100">
+                            <div class="card-body d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="small text-uppercase opacity-75 mb-1">Total Utilisateurs</h6>
+                                    <h2 class="mb-0 fw-bold" th:text="${users.size()}">0</h2>
+                                </div>
+                                <i class="fas fa-users fa-2x opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm bg-success text-white h-100">
+                            <div class="card-body d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="small text-uppercase opacity-75 mb-1">Clubs Actifs</h6>
+                                    <h2 class="mb-0 fw-bold" th:text="${clubs.size()}">0</h2>
+                                </div>
+                                <i class="fas fa-building fa-2x opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card border-0 shadow-sm bg-warning text-dark h-100">
+                            <div class="card-body d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="small text-uppercase opacity-75 mb-1">Événements</h6>
+                                    <h2 class="mb-0 fw-bold" th:text="${events.size()}">0</h2>
+                                </div>
+                                <i class="fas fa-calendar-alt fa-2x opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="clubs" class="mb-5">
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 fw-bold text-primary"><i class="fas fa-shield-alt me-2"></i>Clubs</h5>
+                        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addClubModal">
+                            <i class="fas fa-plus me-1"></i> Nouveau Club
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0 table-hover">
+                            <thead class="table-light">
+                            <tr>
+                                <th class="ps-4">Nom du Club</th>
+                                <th>Catégorie</th>
+                                <th>Président actuel</th>
+                                <th class="text-end pe-4">Actions</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="c, iter : ${clubs}" th:if="${iter.index < 5}">
+                                <td class="ps-4 fw-bold text-dark club-name" th:text="${c.nom}"></td>
+                                <td><span class="badge bg-light text-dark border club-category" th:text="${c.categorie}"></span></td>
+                                <td>
+                                    <span th:if="${c.presidentNom != null}" class="text-success">
+                                        <i class="fas fa-user-tie me-1"></i> <span th:text="${c.presidentNom}"></span>
+                                    </span>
+                                    <span th:unless="${c.presidentNom != null}" class="text-muted small fst-italic">Non assigné</span>
+                                </td>
+                                <input type="hidden" class="club-description" th:value="${c.description}">
+                                <input type="hidden" class="club-id" th:value="${c.id}">
+                                <td class="text-end pe-4">
+                                    <button class="btn btn-sm btn-link text-primary fw-bold text-decoration-none" onclick="openEditClubModal(this)">Éditer</button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card-footer bg-white border-0 py-3 d-flex justify-content-center">
+                        <nav><ul class="pagination pagination-sm mb-0"><li class="page-item active"><a class="page-link" href="#">1</a></li></ul></nav>
+                    </div>
+                </div>
+            </section>
+
+            <section id="evenements" class="mb-5">
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-dark text-white py-3 d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 fw-bold"><i class="fas fa-clock me-2"></i>Événements en attente</h5>
+                        <button class="btn btn-sm btn-light text-dark fw-bold" data-bs-toggle="modal" data-bs-target="#addEventModal">
+                            <i class="fas fa-bullhorn me-1"></i> Event Direction
+                        </button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light">
+                            <tr>
+                                <th class="ps-4">Titre</th>
+                                <th>Organisateur</th>
+                                <th>Date</th>
+                                <th class="text-end pe-4">Décision</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="e, iter : ${events}" th:if="${e.statutEvenement.name() == 'EN_ATTENTE_VALIDATION' and iter.index < 5}">
+                                <td class="ps-4 fw-bold" th:text="${e.titre}"></td>
+                                <td>
+                                    <span th:if="${e.nomClub != null}" class="badge bg-info text-dark" th:text="'Club ' + ${e.nomClub}"></span>
+                                    <span th:unless="${e.nomClub != null}" class="badge bg-dark">Direction</span>
+                                </td>
+                                <td th:text="${#temporals.format(e.dateDebut, 'dd/MM/yyyy')}"></td>
+                                <td class="text-end pe-4">
+                                    <form th:action="@{/admin/events/{id}/validate(id=${e.id})}" method="post" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-success shadow-sm">Valider</button>
+                                    </form>
+                                    <button class="btn btn-sm btn-outline-danger shadow-sm ms-1">Refuser</button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card-footer bg-white border-0 py-3 d-flex justify-content-center">
+                        <nav><ul class="pagination pagination-sm mb-0"><li class="page-item active"><a class="page-link" href="#">1</a></li></ul></nav>
+                    </div>
+                </div>
+            </section>
+
+            <section id="users" class="mb-5">
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 fw-bold text-primary"><i class="fas fa-user-plus me-2"></i>Derniers Inscrits</h5>
+                        <a th:href="@{/admin/users}" class="btn btn-sm btn-outline-primary">Tout gérer</a>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0">
+                            <thead class="table-light">
+                            <tr>
+                                <th class="ps-4">Nom & Prénom</th>
+                                <th>Email</th>
+                                <th>Code Apogée</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="u, iter : ${users}" th:if="${iter.index < 5}">
+                                <td class="ps-4 fw-bold" th:text="${u.nom + ' ' + u.prenom}"></td>
+                                <td th:text="${u.email}"></td>
+                                <td>
+                                    <span th:if="${u.codeApogee != null}" class="badge bg-light text-dark border" th:text="${u.codeApogee}"></span>
+                                    <span th:unless="${u.codeApogee != null}" class="badge bg-secondary">Externe</span>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card-footer bg-white border-0 py-3 d-flex justify-content-center">
+                        <nav><ul class="pagination pagination-sm mb-0"><li class="page-item active"><a class="page-link" href="#">1</a></li></ul></nav>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+</div>
+
+<div th:replace="~{layout :: footer}"></div>
+
+<div class="modal fade" id="addClubModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form th:action="@{/admin/clubs/add}" method="post" enctype="multipart/form-data">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold">Créer un nouveau Club</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Nom du Club</label>
+                        <input type="text" name="nom" class="form-control" required placeholder="Ex: Club Robotique">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Catégorie</label>
+                        <select name="categorie" class="form-select">
+                            <option value="Technologie">Technologie & IT</option>
+                            <option value="Sport">Sport</option>
+                            <option value="Art & Culture">Art & Culture</option>
+                            <option value="Social">Social & Humanitaire</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Logo du Club</label>
+                        <input type="file" name="imageFile" class="form-control" accept="image/*">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Description</label>
+                        <textarea name="description" class="form-control" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary fw-bold">Créer le club</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="editClubModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="editClubForm" method="post" enctype="multipart/form-data">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title fw-bold">Modifier le Club</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Nom du Club</label>
+                        <input type="text" name="nom" id="editNom" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Catégorie</label>
+                        <select name="categorie" id="editCategorie" class="form-select">
+                            <option value="Technologie">Technologie & IT</option>
+                            <option value="Sport">Sport</option>
+                            <option value="Art & Culture">Art & Culture</option>
+                            <option value="Social">Social & Humanitaire</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Changer le Logo (Optionnel)</label>
+                        <input type="file" name="imageFile" class="form-control" accept="image/*">
+                        <div class="form-text text-muted small">Laissez vide pour conserver l'image actuelle.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Description</label>
+                        <textarea name="description" id="editDescription" class="form-control" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-success fw-bold">Enregistrer les modifications</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addEventModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form th:action="@{/admin/events/add}" method="post" enctype="multipart/form-data">
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title fw-bold">Nouvel Événement (Administration)</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Titre</label>
+                        <input type="text" name="titre" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Description</label>
+                        <textarea name="description" class="form-control" rows="3" required></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3"><label class="form-label fw-bold">Début</label><input type="datetime-local" name="dateDebut" class="form-control" required></div>
+                        <div class="col-md-6 mb-3"><label class="form-label fw-bold">Fin</label><input type="datetime-local" name="dateFin" class="form-control"></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3"><label class="form-label fw-bold">Lieu</label><input type="text" name="localisation" class="form-control" required></div>
+                        <div class="col-md-6 mb-3"><label class="form-label fw-bold">Image</label><input type="file" name="imageFile" class="form-control"></div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Visibilité</label>
+                        <select name="visibiliteEvenement" class="form-select">
+                            <option value="PUBLIC">Public</option>
+                            <option value="INTERNE_ENSAM">Interne</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-dark fw-bold">Publier</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openEditClubModal(button) {
+        const row = button.closest('tr');
+        const id = row.querySelector('.club-id').value;
+        const nom = row.querySelector('.club-name').innerText;
+        const categorie = row.querySelector('.club-category').innerText;
+        const description = row.querySelector('.club-description').value;
+        document.getElementById('editNom').value = nom;
+        document.getElementById('editDescription').value = description;
+        const selectCat = document.getElementById('editCategorie');
+        for(let i=0; i < selectCat.options.length; i++) {
+            if(selectCat.options[i].text === categorie || selectCat.options[i].value === categorie) {
+                selectCat.selectedIndex = i;
+                break;
+            }
+        }
+        document.getElementById('editClubForm').action = '/admin/clubs/edit/' + id;
+        const editModal = new bootstrap.Modal(document.getElementById('editClubModal'));
+        editModal.show();
+    }
+</script>
+
+</body>
+</html>

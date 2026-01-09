@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{layout :: head('Mon Profil')}"></head>
+
+<body class="bg-light">
+<div th:replace="~{layout :: navbar}"></div>
+
+<div class="container-fluid py-4 mt-5">
+    <div class="row">
+
+        <nav class="col-md-2 d-none d-md-block sidebar py-4 shadow-lg position-sticky"
+             style="height: calc(100vh - 90px); top: 90px; background: #003366; border-right: 4px solid #FFCC00; border-radius: 0 15px 15px 0; z-index: 1000;">
+            <div class="position-sticky text-white">
+                <h6 class="text-center fw-bold mb-4 text-uppercase ls-1" style="color: #FFCC00; letter-spacing: 2px;">Mon Compte</h6>
+                <ul class="nav flex-column gap-2">
+                    <li class="nav-item">
+                        <a class="nav-link rounded text-white d-flex align-items-center p-3" th:href="@{/profile}" style="background: rgba(255, 204, 0, 0.2); border-left: 4px solid #FFCC00;">
+                            <i class="fas fa-user-circle me-3" style="color: #FFCC00;"></i>Infos Personnelles
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link rounded text-white d-flex align-items-center p-3 hover-ensam" th:href="@{/profile/password}">
+                            <i class="fas fa-lock me-3" style="color: #FFCC00;"></i>Sécurité
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <form th:action="@{/logout}" method="post">
+                            <button type="submit" class="nav-link border-0 bg-transparent text-white d-flex align-items-center p-3 w-100 hover-ensam text-start">
+                                <i class="fas fa-sign-out-alt me-3 text-danger"></i>Déconnexion
+                            </button>
+                        </form>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <style>
+            .hover-ensam:hover { background: rgba(255, 204, 0, 0.1) !important; color: #FFCC00 !important; }
+        </style>
+
+        <main class="col-md-10 ms-sm-auto px-md-4">
+            <div th:if="${param.updated}" class="alert alert-success border-0 shadow-sm mb-4">
+                <i class="fas fa-check-circle me-2"></i>Informations mises à jour avec succès.
+            </div>
+
+            <div class="row g-4">
+
+                <div class="col-md-4">
+                    <div class="card border-0 shadow-sm text-center p-4">
+
+                        <div class="position-relative d-inline-block mx-auto mb-3">
+                            <img th:src="@{'https://ui-avatars.com/api/?background=003366&color=FFCC00&size=150&name=' + ${user.nom} + '+' + ${user.prenom}}"
+                                 class="rounded-circle shadow"
+                                 style="width: 150px; height: 150px; object-fit: cover;"
+                                 alt="Avatar">
+                        </div>
+
+                        <h4 class="fw-bold mb-1" th:text="${user.prenom + ' ' + user.nom}">Nom Prénom</h4>
+                        <span class="badge py-2 px-3 text-uppercase mx-auto" style="background-color: #003366; color: #FFCC00; width: fit-content;" th:text="${user.role}">RÔLE</span>
+                    </div>
+                </div>
+
+                <div class="col-md-8">
+
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white py-3 border-bottom text-primary fw-bold">
+                            <i class="fas fa-id-card me-2"></i>Détails du compte
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="small fw-bold text-uppercase text-muted">Prénom</label>
+                                    <div class="form-control bg-light border-0 py-2" th:text="${user.prenom}"></div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="small fw-bold text-uppercase text-muted">Nom</label>
+                                    <div class="form-control bg-light border-0 py-2" th:text="${user.nom}"></div>
+                                </div>
+                                <div class="col-12">
+                                    <label class="small fw-bold text-uppercase text-muted">Email Universitaire</label>
+                                    <div class="form-control bg-light border-0 py-2" th:text="${user.email}"></div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="small fw-bold text-uppercase text-muted">Code Apogée</label>
+                                    <div class="form-control bg-light border-0 py-2" th:text="${user.codeApogee ?: 'Non renseigné'}"></div>
+                                </div>
+                            </div>
+                            <div class="text-end mt-4">
+                                <a th:href="@{/profile/edit}" class="btn btn-primary px-4 shadow-sm" style="background-color: #003366; border: none;">
+                                    <i class="fas fa-edit me-2"></i>Modifier
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class=" card border-0 shadow-sm mt-4 " sec:authorize="!hasRole('ADMIN')">
+                        <div class="card-header bg-white py-3 border-bottom text-primary fw-bold d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-users me-2"></i>Mes Clubs</span>
+                            <span class="badge bg-light text-dark border" th:text="${mesClubs != null ? mesClubs.size() : 0} + ' Abonnements'">0</span>
+                        </div>
+                        <div class="card-body p-0">
+                            <ul class="list-group list-group-flush">
+
+                                <li th:each="adhesion : ${mesClubs}" class="list-group-item p-3 d-flex align-items-center hover-ensam">
+
+                                    <img th:if="${adhesion.photo != null}"
+                                         th:src="@{${adhesion.photo}}"
+                                         class="rounded-circle me-3 border shadow-sm"
+                                         width="50" height="50" style="object-fit: cover;" alt="Logo Club">
+
+                                    <img th:if="${adhesion.photo == null}"
+                                         th:src="@{'https://ui-avatars.com/api/?background=003366&color=FFCC00&size=50&bold=true&name=' + ${adhesion.clubNom}}"
+                                         class="rounded-circle me-3 border shadow-sm"
+                                         width="50" height="50" style="object-fit: cover;" alt="Logo Club">
+
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-0 fw-bold text-dark" th:text="${adhesion.clubNom}">Nom du Club</h6>
+                                        <small class="text-muted">
+                                            Membre depuis le <span th:text="${#temporals.format(adhesion.dateDemande, 'dd/MM/yyyy')}">Date</span>
+                                        </small>
+                                    </div>
+
+                                    <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 rounded-pill">
+                                        Actif
+                                    </span>
+                                </li>
+
+                                <li th:if="${mesClubs == null || mesClubs.isEmpty()}" class="list-group-item p-4 text-center text-muted">
+                                    Vous n'êtes membre d'aucun club pour le moment.<br>
+                                    <a th:href="@{/clubs}" class="btn btn-sm btn-outline-primary mt-2">Découvrir les clubs</a>
+                                </li>
+
+                            </ul>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<div th:replace="~{layout :: footer}"></div>
+</body>
+</html>

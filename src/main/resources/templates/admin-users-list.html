@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{layout :: head('Annuaire Étudiants')}"></head>
+
+<body class="bg-light">
+
+<div th:replace="~{layout :: navbar}"></div>
+
+<div class="container py-5 mt-5">
+
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-6">
+            <h2 class="text-primary fw-bold">
+                <i class="fas fa-users me-2"></i>Tous les Utilisateurs
+            </h2>
+            <p class="text-muted">Gérez les rôles, les adhésions et les présidences.</p>
+        </div>
+        <div class="col-md-6 text-end">
+            <form th:action="@{/admin/users}" method="get" class="d-flex shadow-sm">
+                <input type="text" name="keyword" class="form-control border-0"
+                       placeholder="Rechercher (Nom, Email, Apogée)..."
+                       th:value="${keyword}">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i>
+                </button>
+                <a th:href="@{/admin/users}" class="btn btn-light border-start" title="Réinitialiser">
+                    <i class="fas fa-undo"></i>
+                </a>
+            </form>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm overflow-hidden">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0 bg-white">
+                <thead class="bg-primary text-white">
+                <tr>
+                    <th class="ps-4">Identité</th>
+                    <th>Contact</th>
+                    <th>Rôles / Statut</th>
+                    <th class="text-end pe-4" style="min-width: 200px;">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="u : ${users}">
+
+                    <td class="ps-4">
+                        <div class="fw-bold text-dark" th:text="${u.nom + ' ' + u.prenom}">Nom Prénom</div>
+                        <div class="small text-muted">
+                            <i class="fas fa-id-card me-1"></i>
+                            <span th:text="${u.codeApogee != null ? u.codeApogee : 'Compte Externe'}"></span>
+                        </div>
+                    </td>
+
+                    <td th:text="${u.email}">email@ensam.eu</td>
+
+                    <td>
+                            <span th:each="role : ${u.roles}"
+                                  th:class="'badge rounded-pill me-1 ' +
+                                  (${role == 'ADMIN'} ? 'bg-danger' :
+                                  (${role == 'PRESIDENT'} ? 'bg-warning text-dark' :
+                                  (${role == 'ENSAMIEN'} ? 'bg-info text-dark' : 'bg-secondary')))"
+                                  th:text="${role}">
+                            </span>
+                    </td>
+
+                    <td class="text-end pe-4">
+
+                        <div th:if="${#lists.contains(u.roles, 'PRESIDENT')}" class="d-flex justify-content-end gap-2">
+
+                            <form th:action="@{/admin/revoke-president}" method="post"
+                                  onsubmit="return confirm('Attention : Cela va retirer la présidence à cet utilisateur. Continuer ?');">
+                                <input type="hidden" name="userId" th:value="${u.id}">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Retirer la présidence">
+                                    <i class="fas fa-user-slash"></i> Destituer
+                                </button>
+                            </form>
+
+                            <button class="btn btn-sm btn-outline-success"
+                                    data-bs-toggle="modal"
+                                    th:data-bs-target="'#userModal'+${u.id}"
+                                    title="Ajouter comme adhérent">
+                                <i class="fas fa-plus"></i> Adhérer
+                            </button>
+                        </div>
+
+                        <div th:unless="${#lists.contains(u.roles, 'PRESIDENT')}">
+                            <button class="btn btn-sm btn-outline-primary"
+                                    data-bs-toggle="modal"
+                                    th:data-bs-target="'#userModal'+${u.id}">
+                                <i class="fas fa-cog me-1"></i> Gérer
+                            </button>
+                        </div>
+
+                        <div class="modal fade" th:id="'userModal'+${u.id}" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content text-start">
+                                    <div class="modal-header bg-light">
+                                        <h6 class="modal-title fw-bold">
+                                            Gérer : <span class="text-primary" th:text="${u.nom + ' ' + u.prenom}"></span>
+                                        </h6>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+
+                                        <form th:unless="${#lists.contains(u.roles, 'PRESIDENT')}"
+                                              th:action="@{/admin/assign-president}" method="post" class="mb-4">
+                                            <input type="hidden" name="userId" th:value="${u.id}">
+                                            <label class="form-label small fw-bold text-muted text-uppercase">Nommer Président</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-warning border-warning text-dark"><i class="fas fa-crown"></i></span>
+                                                <select name="clubId" class="form-select border-warning" required>
+                                                    <option value="" disabled selected>Choisir un club...</option>
+                                                    <option th:each="c : ${clubs}" th:value="${c.id}" th:text="${c.nom}"></option>
+                                                </select>
+                                                <button class="btn btn-warning" type="submit">Valider</button>
+                                            </div>
+                                            <div class="form-text small">Donne tous les droits de gestion sur ce club.</div>
+                                        </form>
+
+                                        <div th:if="${!#lists.contains(u.roles, 'PRESIDENT')}">
+                                            <hr class="my-4">
+                                        </div>
+
+                                        <form th:action="@{/admin/assign-adherent}" method="post">
+                                            <input type="hidden" name="userId" th:value="${u.id}">
+                                            <label class="form-label small fw-bold text-muted text-uppercase">Ajouter comme Membre</label>
+                                            <div class="input-group">
+                                                <span class="input-group-text bg-success border-success text-white"><i class="fas fa-user-tag"></i></span>
+                                                <select name="clubId" class="form-select border-success" required>
+                                                    <option value="" disabled selected>Choisir un club...</option>
+                                                    <option th:each="c : ${clubs}" th:value="${c.id}" th:text="${c.nom}"></option>
+                                                </select>
+                                                <button class="btn btn-success" type="submit">Ajouter</button>
+                                            </div>
+                                            <div class="form-text small">Ajoute l'étudiant comme membre simple.</div>
+                                        </form>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div th:if="${#lists.isEmpty(users)}" class="text-center py-5 text-muted">
+            <i class="fas fa-search fa-3x mb-3 text-secondary opacity-50"></i>
+            <p>Aucun utilisateur trouvé pour cette recherche.</p>
+            <a th:href="@{/admin/users}" class="btn btn-link">Tout afficher</a>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a th:href="@{/admin/dashboard}" class="btn btn-secondary text-white shadow-sm">
+            <i class="fas fa-arrow-left me-2"></i>Retour au Dashboard
+        </a>
+    </div>
+
+</div>
+
+<div th:replace="~{layout :: footer}"></div>
+
+</body>
+</html>

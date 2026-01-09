@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head th:replace="~{layout :: head('Les Clubs ENSAM')}"></head>
+
+<body class="bg-light">
+
+<div th:replace="~{layout :: navbar}"></div>
+
+<style>
+    .club-card {
+        border-left: 6px solid #003366;
+        transition: all 0.3s ease;
+        background: white;
+        min-height: 250px;
+    }
+    .club-card:hover {
+        border-left: 6px solid #FFCC00;
+        transform: translateY(-5px);
+        box-shadow: 0 12px 25px rgba(0,0,0,0.1) !important;
+    }
+    .btn-ensam {
+        background-color: #003366;
+        color: white;
+        border: none;
+        font-weight: bold;
+        padding: 10px 25px;
+    }
+    .btn-ensam:hover {
+        background-color: #002244;
+        color: #FFCC00;
+    }
+    .badge-category {
+        background-color: rgba(0, 51, 102, 0.05);
+        color: #003366;
+        border: 1px solid rgba(0, 51, 102, 0.2);
+        font-weight: 600;
+    }
+    .text-ensam {
+        color: #003366;
+    }
+    .club-description {
+        color: #000000 !important;
+        line-height: 1.6;
+    }
+</style>
+
+<main class="container py-5 mt-5">
+
+    <div class="text-center mb-5">
+        <h1 class="display-5 fw-bold text-ensam">Vie Associative</h1>
+        <div class="mx-auto mb-3" style="width: 60px; height: 4px; background: #FFCC00; border-radius: 2px;"></div>
+        <p class="lead text-muted">Découvrez l'excellence et l'engagement des étudiants de l'ENSAM.</p>
+    </div>
+
+    <div th:if="${param.success}" class="alert alert-success border-0 shadow-sm alert-dismissible fade show mb-4">
+        <div class="d-flex align-items-center">
+            <i class="fas fa-check-circle me-3 fa-lg"></i>
+            <div><strong>Succès !</strong> Votre demande d'adhésion a été transmise au président.</div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-12" th:each="club : ${clubs}">
+            <div class="card club-card shadow-sm border-0">
+                <div class="row g-0">
+
+                    <div class="col-md-3 bg-light d-flex align-items-center justify-content-center p-4">
+
+                        <img th:src="@{${club.photo != null ? club.photo : 'https://ui-avatars.com/api/?background=003366&color=FFCC00&size=200&bold=true&name=' + club.nom}}"
+                             class="img-fluid rounded-3 shadow-sm bg-white"
+                             style="width: 160px; height: 160px; object-fit: contain; border: 4px solid white;"
+                             alt="Logo Club">
+
+                    </div>
+
+                    <div class="col-md-9 p-4 d-flex flex-column">
+
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="d-flex align-items-center gap-3">
+                                <h2 class="fw-bold text-ensam mb-0" th:text="${club.nom}">Nom du Club</h2>
+                                <span class="badge badge-category rounded-pill px-3" th:text="${club.categorie}">Catégorie</span>
+                            </div>
+                            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3 py-2">
+                                <i class="fas fa-circle me-1 small"></i> Club Actif
+                            </span>
+                        </div>
+
+                        <div class="flex-grow-1">
+                            <p class="club-description mb-0" style="white-space: pre-line; text-align: justify;" th:text="${club.description}">
+                                Description complète ici...
+                            </p>
+                        </div>
+
+                        <div class="mt-4 d-flex justify-content-end align-items-center">
+
+                            <a sec:authorize="!isAuthenticated()" th:href="@{/login}"
+                               class="btn btn-outline-primary px-4">
+                                <i class="fas fa-sign-in-alt me-2"></i>Se connecter pour postuler
+                            </a>
+
+                            <form sec:authorize="isAuthenticated()"
+                                  th:action="@{/clubs/{id}/join(id=${club.id})}" method="post">
+                                <button type="submit" class="btn btn-ensam shadow-sm">
+                                    <i class="fas fa-user-plus me-2"></i>Rejoindre le club
+                                </button>
+                            </form>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 text-center py-5" th:if="${#lists.isEmpty(clubs)}">
+            <div class="card border-0 shadow-sm p-5 bg-white">
+                <i class="fas fa-users-slash fa-4x text-light mb-3"></i>
+                <h4 class="text-muted">Aucun club n'est répertorié pour le moment.</h4>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<div th:replace="~{layout :: footer}"></div>
+
+</body>
+</html>

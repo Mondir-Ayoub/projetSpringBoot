@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="fr"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"> <head th:replace="~{layout :: head('Accueil | ENSAM Casablanca')}"></head>
+
+<style>
+    :root { --ensam-blue: #003366; --ensam-gold: #FFCC00; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #333; }
+
+    .hero-banner {
+        background: linear-gradient(rgba(0,51,102,0.8), rgba(0,51,102,0.8)),
+        url('https://www.kezakoo.com/sup/wp-content/uploads/2019/06/ensam-casa.jpg');
+        background-size: cover; background-position: center;
+        padding: 120px 0; color: white; border-bottom: 6px solid var(--ensam-gold);
+    }
+
+    .btn-ensam { background: var(--ensam-blue); color: white; border: 2px solid var(--ensam-gold); border-radius: 0; font-weight: bold; transition: 0.3s; padding: 12px 30px; }
+    .btn-ensam:hover { background: var(--ensam-gold); color: var(--ensam-blue); }
+
+    .stat-box { border-bottom: 4px solid var(--ensam-blue); background: #ffffff; padding: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+    .section-title { color: var(--ensam-blue); font-weight: 800; text-transform: uppercase; position: relative; margin-bottom: 30px; }
+    .section-title::after { content: ''; display: block; width: 50px; height: 4px; background: var(--ensam-gold); margin-top: 10px; }
+</style>
+
+<body class="bg-light">
+
+<div th:replace="~{layout :: navbar}"></div>
+
+<section class="hero-banner text-center">
+    <div class="container">
+        <h1 class="display-4 fw-bold mb-3">
+            Bienvenue sur la plateforme événementielle de l’ENSAM
+        </h1>
+        <p class="lead fs-3 mb-4">
+            Découvrez les événements des clubs et de la direction.
+        </p>
+
+        <div class="mt-4 d-flex justify-content-center gap-3">
+            <a th:href="@{/events}" class="btn btn-ensam">AGENDA DES EVENEMENTS</a>
+
+            <a sec:authorize="!isAuthenticated()"
+               th:href="@{/login}"
+               class="btn btn-ensam">MON ESPACE</a>
+
+            <a sec:authorize="isAuthenticated()"
+               th:href="@{/profile}"
+               class="btn btn-ensam">MON PROFILE</a>
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container text-center">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="stat-box shadow-sm">
+                    <h2 class="fw-bold" style="color: var(--ensam-blue);" th:text="${nbrClubs}">12</h2>
+                    <span class="text-uppercase small fw-bold text-muted">Clubs Actifs</span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-box shadow-sm">
+                    <h2 class="fw-bold" style="color: var(--ensam-blue);" th:text="${nbrEvenements}">80</h2>
+                    <span class="text-uppercase small fw-bold text-muted">Événements / An</span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-box shadow-sm">
+                    <h2 class="fw-bold" style="color: var(--ensam-blue);" th:text="${nbrParticipants}">2500</h2>
+                    <span class="text-uppercase small fw-bold text-muted">Inscriptions réalisées</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-5 bg-white">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-md-6">
+                <h2 class="section-title">Notre Mission</h2>
+                <p class="lead text-dark fw-normal">Former des ingénieurs d’excellence, acteurs de l’innovation et de la vie associative.</p>
+                <p class="text-muted">
+                    L’École Nationale Supérieure d’Arts et Métiers de Casablanca forme des ingénieurs hautement qualifiés, capables d’innover et de répondre aux besoins technologiques du Maroc.
+                </p>
+                <p class="text-muted mb-4">
+                    La vie étudiante ne se limite pas aux cours ; elle s’étend à une riche dynamique associative favorisant le leadership, le travail d’équipe et l’innovation.
+                </p>
+                <a href="https://www.ensam-casa.ma/" target="_blank" class="btn btn-outline-primary rounded-0 fw-bold border-2">
+                    EN SAVOIR PLUS SUR L'ENSAM →
+                </a>
+            </div>
+            <div class="col-md-6 mt-4 mt-md-0">
+                <div class="p-2 border bg-light shadow-sm">
+                    <img src="https://www.kezakoo.com/sup/wp-content/uploads/2019/06/ensam-casa.jpg"
+                         class="img-fluid" alt="Bâtiment ENSAM">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div th:replace="~{layout :: footer}"></div>
+</body>
+</html>

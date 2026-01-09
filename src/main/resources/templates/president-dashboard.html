@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{layout :: head('Espace Président')}"></head>
+
+<body class="bg-light">
+
+<div th:replace="~{layout :: navbar}"></div>
+
+<main class="container py-5 mt-4">
+
+    <div class="row align-items-center mb-5">
+        <div class="col-md-8">
+            <h2 class="text-primary fw-bold mb-1">
+                <i class="fas fa-crown me-2"></i>Espace Président
+            </h2>
+            <p class="text-muted mb-0">Gérez votre club, vos événements et vos membres.</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <span class="badge bg-primary fs-6">
+                <i class="fas fa-building me-1"></i>
+                <span th:text="${club.nom}">Nom du Club</span>
+            </span>
+        </div>
+    </div>
+
+    <section class="mb-5">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card shadow-sm border-0 border-start border-primary border-4 h-100">
+                    <div class="card-body d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <h6 class="text-muted text-uppercase mb-1">Événements</h6>
+                            <h2 class="fw-bold mb-0" th:text="${evenements != null ? evenements.size() : 0}">0</h2>
+                        </div>
+                        <div class="bg-primary bg-opacity-10 p-3 rounded-circle">
+                            <i class="fas fa-calendar-alt text-primary fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card shadow-sm border-0 border-start border-warning border-4 h-100">
+                    <div class="card-body d-flex align-items-center">
+                        <div class="flex-grow-1">
+                            <h6 class="text-muted text-uppercase mb-1">Demandes</h6>
+                            <h2 class="fw-bold mb-0" th:text="${inscriptions != null ? inscriptions.size() : 0}">0</h2>
+                        </div>
+                        <div class="bg-warning bg-opacity-10 p-3 rounded-circle">
+                            <i class="fas fa-user-clock text-warning fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-body text-center">
+                        <h6 class="text-muted text-uppercase mb-3">Mon Club</h6>
+
+                        <div class="mb-3">
+                            <img th:src="@{${club.photo != null ? club.photo : 'https://ui-avatars.com/api/?background=0d6efd&color=fff&size=120&bold=true&name=' + club.nom}}"
+                                 class="rounded-circle shadow-sm border border-3 border-light"
+                                 style="width: 100px; height: 100px; object-fit: cover;"
+                                 alt="Logo Club">
+                        </div>
+
+                        <h5 class="fw-bold text-primary mb-1" th:text="${club.nom}">Nom</h5>
+                        <div class="mb-2">
+                            <span class="badge bg-secondary" th:text="${club.categorie}">Catégorie</span>
+                        </div>
+                        <p class="small text-muted mb-0" th:text="${club.description}">Description...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="text-primary fw-bold">Mes Événements</h4>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createEventModal">
+                <i class="fas fa-plus me-2"></i>Créer un événement
+            </button>
+        </div>
+
+        <div class="card shadow-sm border-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                    <tr>
+                        <th>Titre</th>
+                        <th>Date & Lieu</th>
+                        <th>Visibilité</th>
+                        <th>Statut Validation</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="e : ${evenements}">
+                        <td class="fw-bold text-primary" th:text="${e.titre}"></td>
+
+                        <td>
+                            <div th:text="${#temporals.format(e.dateDebut, 'dd/MM/yyyy HH:mm')}"></div>
+                            <div class="small text-muted" th:text="${e.localisation}"></div>
+                        </td>
+
+                        <td>
+                            <span th:class="'badge ' + (${e.visibiliteEvenement.name() == 'PUBLIC'} ? 'bg-info' : 'bg-dark')"
+                                  th:text="${e.visibiliteEvenement}"></span>
+                        </td>
+
+                        <td>
+                            <span th:if="${e.statutEvenement.name() == 'PUBLIC'}" class="badge bg-success">
+                                <i class="fas fa-check me-1"></i>Validé
+                            </span>
+                            <span th:if="${e.statutEvenement.name() == 'EN_ATTENTE_VALIDATION'}" class="badge bg-warning text-dark">
+                                <i class="fas fa-clock me-1"></i>En attente
+                            </span>
+                            <span th:if="${e.statutEvenement.name() == 'BROUILLON'}" class="badge bg-secondary">
+                                Brouillon
+                            </span>
+                        </td>
+
+                        <td>
+                            <a href="#" class="btn btn-sm btn-outline-secondary disabled">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                        </td>
+                    </tr>
+
+                    <tr th:if="${#lists.isEmpty(evenements)}">
+                        <td colspan="5" class="text-center py-4 text-muted">
+                            Aucun événement créé pour le moment.
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <section class="mb-5">
+        <h4 class="text-primary fw-bold mb-3">Participants aux événements</h4>
+
+        <div class="card shadow-sm border-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                    <tr>
+                        <th>Événement</th>
+                        <th>Étudiant</th>
+                        <th>Date Demande</th>
+                        <th>Statut Badge</th>
+                        <th class="text-end">Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="ins : ${inscriptions}">
+                        <td th:text="${ins.evenementTitre}"></td>
+                        <td th:text="${ins.utilisateurNomPrenom}"></td>
+                        <td th:text="${#temporals.format(ins.datePostulation, 'dd/MM/yyyy')}"></td>
+                        <td>
+                            <span th:class="'badge ' +
+                                (${ins.statutBadge.name() == 'CONFIRME'} ? 'bg-success' : 'bg-warning text-dark')"
+                                  th:text="${ins.statutBadge}">
+                            </span>
+                        </td>
+                        <td class="text-end">
+                            <form th:if="${ins.statutBadge.name() == 'EN_ATTENTE'}"
+                                  th:action="@{/president/inscriptions/{id}/valider(id=${ins.id})}"
+                                  method="post" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-success">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(inscriptions)}">
+                        <td colspan="5" class="text-center py-4 text-muted">
+                            Aucune inscription en attente.
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <section class="mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="text-primary fw-bold">
+                <i class="fas fa-users-cog me-2"></i>Demandes d'adhésion au Club
+            </h4>
+            <span class="badge bg-warning text-dark"
+                  th:text="${demandesAdhesion != null ? demandesAdhesion.size() : 0} + ' en attente'">
+                0 en attente
+            </span>
+        </div>
+
+        <div class="card shadow-sm border-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                    <tr>
+                        <th>Étudiant</th>
+                        <th>Email</th>
+                        <th>Date Demande</th>
+                        <th>Statut</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="demande : ${demandesAdhesion}">
+                        <td class="fw-bold">
+                            <i class="fas fa-user-graduate me-2 text-muted"></i>
+                            <span th:text="${demande.utilisateurNomPrenom}">Nom Prénom</span>
+                        </td>
+                        <td th:text="${demande.utilisateurEmail}">email@ensam.eu</td>
+
+                        <td th:text="${demande.dateDemande != null ? #temporals.format(demande.dateDemande, 'dd/MM/yyyy') : 'Date inconnue'}"></td>
+
+                        <td>
+                            <span class="badge bg-warning text-dark">En attente</span>
+                        </td>
+                        <td class="text-end">
+                            <form th:action="@{/president/adhesions/{id}/valider(id=${demande.id})}"
+                                  method="post" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-success" title="Accepter">
+                                    <i class="fas fa-check"></i> Valider
+                                </button>
+                            </form>
+
+                            <form th:action="@{/president/adhesions/{id}/refuser(id=${demande.id})}"
+                                  method="post" class="d-inline ms-1">
+                                <button type="submit" class="btn btn-sm btn-outline-danger"
+                                        onclick="return confirm('Refuser cette demande ?');" title="Refuser">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+
+                    <tr th:if="${demandesAdhesion == null || #lists.isEmpty(demandesAdhesion)}">
+                        <td colspan="5" class="text-center py-4 text-muted">
+                            <i class="fas fa-check-circle fa-2x mb-2 text-success opacity-50"></i><br>
+                            Aucune nouvelle demande d'adhésion pour le moment.
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <section class="mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="text-success fw-bold">
+                <i class="fas fa-users me-2"></i>Membres du Club
+            </h4>
+            <span class="badge bg-success"
+                  th:text="${membres != null ? membres.size() : 0} + ' membres actifs'">
+                0 membres actifs
+            </span>
+        </div>
+
+        <div class="card shadow-sm border-0 border-top border-success border-3">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                    <tr>
+                        <th class="ps-4">Nom & Prénom</th>
+                        <th>Email</th>
+                        <th>Membre depuis le</th>
+                        <th>Statut</th>
+                        <th class="text-end pe-4">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+
+                    <tr th:each="membre : ${membres}">
+                        <td class="ps-4 fw-bold text-dark">
+                            <div class="d-flex align-items-center">
+                                <img th:src="@{'https://ui-avatars.com/api/?background=random&color=fff&size=40&name=' + ${membre.utilisateurNomPrenom}}"
+                                     class="rounded-circle me-3" width="35" height="35" alt="Avatar">
+                                <span th:text="${membre.utilisateurNomPrenom}">Nom Prénom</span>
+                            </div>
+                        </td>
+
+                        <td th:text="${membre.utilisateurEmail}">email@ensam.eu</td>
+
+                        <td th:text="${membre.dateDemande != null ? #temporals.format(membre.dateDemande, 'dd/MM/yyyy') : '-'}">
+                            01/01/2024
+                        </td>
+
+                        <td>
+                            <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25">
+                                <i class="fas fa-check-circle me-1"></i> Adhérent
+                            </span>
+                        </td>
+
+                        <td class="text-end pe-4">
+                            <form th:action="@{/president/adhesions/{id}/refuser(id=${membre.id})}"
+                                  method="post" class="d-inline">
+                                <button type="submit" class="btn btn-sm btn-outline-danger"
+                                        onclick="return confirm('Voulez-vous vraiment exclure ce membre du club ?');"
+                                        title="Exclure du club">
+                                    <i class="fas fa-user-minus"></i>
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+
+                    <tr th:if="${membres == null || #lists.isEmpty(membres)}">
+                        <td colspan="5" class="text-center py-5 text-muted">
+                            <i class="fas fa-user-friends fa-3x mb-3 text-secondary opacity-25"></i><br>
+                            Ce club n'a pas encore de membres validés.
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<div class="modal fade" id="createEventModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title">Organiser un nouvel événement</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+
+            <form th:action="@{/president/events/add}" method="post" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Titre de l'événement</label>
+                        <input type="text" name="titre" class="form-control" required placeholder="Ex: Hackathon IA">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Description</label>
+                        <textarea name="description" class="form-control" rows="3" required></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Affiche de l'événement (Optionnel)</label>
+                        <input type="file" name="imageFile" class="form-control" accept="image/*">
+                        <div class="form-text text-muted">Formats acceptés : JPG, PNG.</div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Date de début</label>
+                            <input type="datetime-local" name="dateDebut" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Lieu</label>
+                            <input type="text" name="lieu" class="form-control" required placeholder="Ex: Salle B12">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Visibilité</label>
+                        <select name="visibiliteEvenement" class="form-select">
+                            <option value="PRIVE_CLUB">Privé (Membres du club seulement)</option>
+                            <option value="INTERNE_ENSAM">Interne (Étudiants ENSAM)</option>
+                            <option value="PUBLIC">Public (Ouvert à tous)</option>
+                        </select>
+                        <div class="form-text text-muted">
+                            Les événements publics doivent être validés par l'administration.
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Créer l'événement</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{layout :: footer}"></div>
+
+</body>
+</html>

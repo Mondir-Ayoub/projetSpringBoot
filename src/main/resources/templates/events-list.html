@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{layout :: head('Agenda des Événements')}"></head>
+
+<body class="bg-light">
+
+<div th:replace="~{layout :: navbar}"></div>
+
+<main class="container py-5 mt-4">
+
+    <div class="text-center mb-5">
+        <h2 class="text-primary fw-bold">
+            <i class="fas fa-calendar-alt me-2"></i>Agenda des Événements
+        </h2>
+        <p class="text-muted lead">
+            Découvrez les activités organisées par les clubs et l'administration de l'ENSAM.
+        </p>
+    </div>
+
+    <div class="row justify-content-center mb-5">
+        <div class="col-md-6">
+            <form th:action="@{/events}" method="get" class="d-flex shadow-sm">
+                <input type="text" name="search" class="form-control border-0 p-3"
+                       th:value="${keyword}"
+                       placeholder="Rechercher un événement (titre, description)...">
+                <button type="submit" class="btn btn-primary px-4">
+                    <i class="fas fa-search"></i>
+                </button>
+                <a th:if="${keyword != null}" th:href="@{/events}" class="btn btn-light border-start pt-3">
+                    <i class="fas fa-times"></i>
+                </a>
+            </form>
+        </div>
+    </div>
+
+    <div th:if="${#lists.isEmpty(listEvenements)}" class="text-center py-5">
+        <div class="alert alert-info d-inline-block shadow-sm px-5 py-4">
+            <i class="fas fa-info-circle fa-2x mb-3 d-block"></i>
+            <h5>Aucun événement trouvé.</h5>
+            <p class="mb-0">Essayez d'autres mots-clés ou revenez plus tard.</p>
+        </div>
+    </div>
+
+    <div class="row g-4" th:unless="${#lists.isEmpty(listEvenements)}">
+
+        <div class="col-md-6 col-lg-4" th:each="event : ${listEvenements}">
+
+            <div class="card h-100 shadow-sm border-0 hover-card overflow-hidden">
+
+                <img th:src="@{${event.imagePath != null ? event.imagePath : '/images/event-default.jpg'}}"
+                     class="card-img-top"
+                     alt="Affiche événement"
+                     style="height: 200px; object-fit: cover;">
+
+                <div class="card-header bg-white border-0 pt-3 pb-0 d-flex justify-content-between">
+                    <span th:class="'badge ' +
+                        (${event.visibiliteEvenement.name() == 'PUBLIC'} ? 'bg-success' :
+                        (${event.visibiliteEvenement.name() == 'INTERNE_ENSAM'} ? 'bg-info text-dark' : 'bg-dark'))"
+                          th:text="${event.visibiliteEvenement}">
+                    </span>
+                </div>
+
+                <div class="card-body d-flex flex-column">
+
+                    <h5 class="card-title text-primary fw-bold mb-3" th:text="${event.titre}">Titre</h5>
+
+                    <div class="mb-2 text-muted">
+                        <i class="far fa-calendar-alt me-2 text-secondary"></i>
+                        <strong th:text="${#temporals.format(event.dateDebut, 'dd MMMM yyyy à HH:mm')}">Date</strong>
+                    </div>
+
+                    <div class="mb-2 text-muted">
+                        <i class="fas fa-map-marker-alt me-2 text-secondary"></i>
+                        <span th:text="${event.localisation}">Lieu</span>
+                    </div>
+
+                    <div class="mb-3 text-muted">
+                        <i class="fas fa-users me-2 text-secondary"></i>
+                        <strong th:if="${event.clubId != null}" th:text="'Club ' + ${event.nomClub}"></strong>
+                        <strong th:if="${event.clubId == null}" class="text-dark">Administration ENSAM</strong>
+                    </div>
+
+                    <a th:href="@{/events/{id}(id=${event.id})}"
+                       class="btn btn-outline-primary mt-auto w-100 stretched-link">
+                        Voir les détails <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+
+                </div>
+
+                <div class="card-footer bg-white border-0 text-muted small text-end">
+                    <small th:if="${event.dateFin != null}">
+                        Finit le : <span th:text="${#temporals.format(event.dateFin, 'dd/MM/yyyy')}"></span>
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</main>
+
+<div th:replace="~{layout :: footer}"></div>
+
+</body>
+</html>

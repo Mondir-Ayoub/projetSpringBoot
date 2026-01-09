@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Connexion | Portail ENSAM')}"></head>
+<style>
+    :root { --ensam-blue: #003366; --ensam-gold: #FFCC00; }
+    body { background: #e9ecef; }
+    .login-card { border: none; border-left: 8px solid var(--ensam-blue); border-radius: 0; box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
+    .btn-login { background: var(--ensam-blue); color: white; border-radius: 0; font-weight: bold; }
+    .btn-login:hover { background: #002244; color: var(--ensam-gold); }
+
+    /* Style pour le texte SHOW/HIDE */
+    .input-group-text {
+        background: white;
+        border-left: none;
+        cursor: pointer;
+        color: var(--ensam-blue);
+        font-size: 0.75rem;
+        font-weight: bold;
+        text-transform: uppercase;
+        min-width: 65px;
+        justify-content: center;
+    }
+    .form-control { border-radius: 0; border: 1px solid #ced4da; }
+    .alert-ensam { border-radius: 0; border: none; border-left: 4px solid; font-size: 0.85rem; font-weight: 600; }
+
+    .signup-link {
+        color: #d4a017;
+        transition: 0.3s;
+    }
+    .signup-link:hover {
+        color: var(--ensam-blue);
+        text-decoration: underline !important;
+    }
+</style>
+<body>
+<div th:replace="~{layout :: navbar}"></div>
+
+<main class="container d-flex justify-content-center align-items-center" style="min-height: 85vh;">
+    <div class="card login-card p-4 shadow" style="max-width: 400px; width: 100%;">
+        <div class="text-center mb-4">
+            <h3 class="fw-bold text-primary">CONNEXION</h3>
+            <small class="text-muted text-uppercase fw-bold">Espace Membre ENSAM</small>
+        </div>
+
+        <div th:if="${param.error}" class="alert alert-danger alert-ensam mb-3" role="alert" style="border-left-color: #dc3545;">
+            Identifiants incorrects. Veuillez réessayer.
+        </div>
+
+        <div th:if="${param.logout}" class="alert alert-info alert-ensam mb-3" role="alert" style="border-left-color: #0dcaf0;">
+            Déconnexion réussie.
+        </div>
+
+        <form th:action="@{/login}" method="post">
+            <div class="mb-3">
+                <label class="form-label small fw-bold">EMAIL</label>
+                <input type="email" name="username" class="form-control" placeholder="nom@exemple.com" required>
+            </div>
+            <div class="mb-4">
+                <label class="form-label small fw-bold">MOT DE PASSE</label>
+                <div class="input-group">
+                    <input type="password" id="password" name="password" class="form-control" placeholder="••••••••" required>
+                    <span class="input-group-text" id="toggleText" onclick="togglePassword()">SHOW</span>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-login w-100 py-2 text-uppercase">Accéder au portail</button>
+        </form>
+
+        <div class="mt-4 text-center border-top pt-3">
+            <a th:href="@{/signup}" class="text-decoration-none small fw-bold signup-link">
+                CRÉER UN NOUVEAU COMPTE →
+            </a>
+        </div>
+    </div>
+</main>
+
+<script>
+    function togglePassword() {
+        const passwordField = document.getElementById("password");
+        const toggleText = document.getElementById("toggleText");
+
+        if (passwordField.type === "password") {
+            passwordField.type = "text";
+            toggleText.innerText = "HIDE";
+        } else {
+            passwordField.type = "password";
+            toggleText.innerText = "SHOW";
+        }
+    }
+</script>
+
+<div th:replace="~{layout :: footer}"></div>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{layout :: head('Mes Inscriptions')}"></head>
+
+<body class="bg-light">
+
+<div th:replace="~{layout :: navbar}"></div>
+
+<div class="container py-5 mt-5">
+
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-8">
+            <h2 class="text-primary fw-bold">
+                <i class="fas fa-ticket-alt me-2"></i>Mes Inscriptions
+            </h2>
+            <p class="text-muted">Retrouvez ici l'historique de vos participations et vos badges.</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a th:href="@{/events}" class="btn btn-outline-primary">
+                <i class="fas fa-plus me-1"></i>S'inscrire à d'autres événements
+            </a>
+        </div>
+    </div>
+
+    <div th:if="${#lists.isEmpty(mesInscriptions)}" class="alert alert-info shadow-sm">
+        <i class="fas fa-info-circle me-2"></i>
+        Vous n'êtes inscrit à aucun événement pour le moment.
+        <a th:href="@{/events}" class="alert-link">Consulter l'agenda</a>.
+    </div>
+
+    <div th:unless="${#lists.isEmpty(mesInscriptions)}" class="card shadow-sm border-0">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4">Événement</th>
+                        <th>Date d'inscription</th>
+                        <th>Statut</th>
+                        <th class="text-end pe-4">Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="ins : ${mesInscriptions}">
+
+                        <td class="ps-4 fw-bold text-primary">
+                            <a th:href="@{/events/{id}(id=${ins.evenementId})}"
+                               class="text-decoration-none text-primary"
+                               th:text="${ins.evenementTitre}">Titre</a>
+                        </td>
+
+                        <td th:text="${#temporals.format(ins.datePostulation, 'dd/MM/yyyy')}">Date</td>
+
+                        <td>
+                            <span th:class="'badge ' +
+                                  (${ins.statutBadge.name() == 'CONFIRME'} ? 'bg-success' : 'bg-secondary')"
+                                  th:text="${ins.statutBadge}">
+                            </span>
+                        </td>
+
+                        <td class="text-end pe-4">
+                            <a th:if="${ins.statutBadge.name() == 'CONFIRME'}"
+                               th:href="@{/api/badges/download/{id}(id=${ins.id})}"
+                               class="btn btn-sm btn-outline-dark"
+                               target="_blank">
+                                <i class="fas fa-download me-1"></i>Badge PDF
+                            </a>
+
+                            <span th:unless="${ins.statutBadge.name() == 'CONFIRME'}" class="text-muted small">
+                                <i class="fas fa-clock me-1"></i>En attente
+                            </span>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div th:replace="~{layout :: footer}"></div>
+
+</body>
+</html>

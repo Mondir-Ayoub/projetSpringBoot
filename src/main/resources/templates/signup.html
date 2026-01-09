@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout :: head('Inscription | Portail ENSAM')}"></head>
+<style>
+    :root { --ensam-blue: #003366; --ensam-gold: #FFCC00; }
+    .signup-card { border-top: 5px solid var(--ensam-gold); border-radius: 0; }
+    .form-label { font-size: 0.8rem; font-weight: bold; color: var(--ensam-blue); }
+    .btn-signup { background: var(--ensam-blue); color: white; border-radius: 0; border: none; font-weight: bold; }
+    .form-control:focus { border-color: var(--ensam-gold); box-shadow: none; }
+
+    /* Style pour les alertes d'erreur */
+    .alert-ensam { border-radius: 0; border: none; border-left: 4px solid #dc3545; font-size: 0.85rem; font-weight: 600; background-color: #f8d7da; color: #842029; }
+    .login-redirect { color: #d4a017; transition: 0.3s; text-decoration: none; font-size: 0.9rem; }
+    .login-redirect:hover { color: var(--ensam-blue); text-decoration: underline !important; }
+</style>
+<body>
+<div th:replace="~{layout :: navbar}"></div>
+
+<main class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+            <div class="card signup-card shadow-lg p-4">
+                <div class="border-bottom mb-4 pb-2">
+                    <h3 class="fw-bold text-primary">INSCRIPTION ÉTUDIANT / EXTERNE</h3>
+                    <p class="text-muted small">Veuillez renseigner vos informations réelles pour la validation des badges.</p>
+                </div>
+
+                <div th:if="${error}" class="alert alert-ensam mb-4 p-3" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <span th:text="${error}">Cet email est déjà utilisé par un autre compte.</span>
+                </div>
+
+                <form th:action="@{/signup}" th:object="${utilisateur}" method="post">
+                    <div class="row g-3">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-uppercase">Prénom</label>
+                            <input type="text" th:field="*{prenom}" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-uppercase">Nom</label>
+                            <input type="text" th:field="*{nom}" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-uppercase">Email Professionnel</label>
+                        <input type="email" th:field="*{email}" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label text-uppercase">Mot de passe</label>
+                        <input type="password" th:field="*{motDePasse}" class="form-control" required>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label text-uppercase">Code Apogée (Optionnel)</label>
+                        <input type="text" th:field="*{codeApogee}" class="form-control" placeholder="Ex: 19002344">
+                    </div>
+                    <button type="submit" class="btn btn-signup w-100 py-2 mb-3">VALIDER L'INSCRIPTION</button>
+                </form>
+
+                <div class="text-center mt-3 border-top pt-3">
+                    <span class="text-muted small fw-bold">VOUS AVEZ DÉJÀ UN COMPTE ?</span>
+                    <a th:href="@{/login}" class="login-redirect fw-bold ms-1">SE CONNECTER →</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<div th:replace="~{layout :: footer}"></div>
+</body>
+</html>
