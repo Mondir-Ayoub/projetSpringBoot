@@ -109,6 +109,26 @@ La sécurité de l’application est assurée par **Spring Security**.
 * Gestion des accès non autorisés via des pages dédiées
 
 ---
+##  Base de Données & Logique Métier
+
+Ce projet utilise **SQL Server**. Une configuration automatique (`data.sql`) peuple la base au démarrage.
+
+### Logique d'Authentification & Rôles
+Le système distingue les utilisateurs internes (Ensamiens) des externes via le **Code Apogée**.
+
+1.  **Table `ensamiens` (Liste Blanche)** : Contient la liste officielle des étudiants (Code Apogée, Nom, Filière).
+2.  **Table `utilisateurs`** : Contient les comptes de connexion.
+    * Si le champ `code_apogee` est **rempli** et valide ➔ Rôle **ENSAMIEN**.
+    * Si le champ `code_apogee` est **NULL** ➔ Rôle **EXTERNE**.
+
+###  Comptes de Test (Mot de passe : 12345)
+
+| Rôle | Email | Code Apogée | Particularité |
+| :--- | :--- | :--- | :--- |
+| Admin | `admin@ensam.eu` | `NULL` | Accès global. |
+| Président | `ahmed.alami@ensam.eu` | `2023001` | Ensamien + Gestion Club. |
+| Ensamien | `hiba.daoudi@ensam.eu` | `2023004` | Accès événements internes. |
+| Externe | `jean.dupont@gmail.com` | `NULL` | Accès limité public. |
 
 ## Diagrammes UML
 
